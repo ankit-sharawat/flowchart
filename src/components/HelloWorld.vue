@@ -1,7 +1,11 @@
 <template>
   <b-container class="container">
+  <b-card title=""
+                header-tag="header"
+                footer-tag="footer">
+            
     <!-- <b-card> -->
-    <b-row>
+    <b-row slot="header">
       <b-col>
         <b-form-select v-model="selecteddoc" text="Flowchart">
           <option>Blank</option>
@@ -20,7 +24,6 @@
       <b-col>
         <div id="select-components">
           <select v-model="currentComponent" @change="show=true">
-            <option selected></option>
           <option v-for="(comp,index) in components"
              v-bind:key="index"
              :value="comp"
@@ -33,12 +36,14 @@
             </div>
           </b-modal>
         </div>
-  
+      </div>
+      <div id="d1"></div>
       </b-col>
     </b-row>
     <!-- <add-operator @add-operator="createOperator" ></add-operator> -->
-    <canvas id="chart">
-    </canvas>
+    <div id="chart">
+    </div>
+    </b-card>
     <!-- <div v-for="(element,index) in elements" :is="scomponent" :key="index"></div> -->
     <!-- </b-card> -->
   </b-container>
@@ -68,6 +73,7 @@
       return {
         show: false,
         data: "",
+        count:0,
         total_doc: [],
         selecteddoc: "",
         components: ["AddOperator", "Train", "Deploy"],
@@ -77,7 +83,7 @@
     mounted: function() {
       this.getcollections()
       setTimeout(() => {
-        var flowchart = $('#chart')[0]
+        var flowchart = $('#chart')
         flowchart.flowchart({
           data: this.data,
           canUserEditLinks: true
@@ -94,9 +100,10 @@
       createOperator(op_data) {
         this.count += 1
         var operatorI = this.count
-        var $flowchart = document.getElementById('chart');
+        var flowchart = $('#chart');
         var operatorId = 'created_operator_' + operatorI;
-        $flowchart.flowchart('createOperator', operatorId, op_data);
+        flowchart.flowchart('createOperator', operatorId, op_data);
+        this.show = false
       },
       saveData() {
         console.log(this.selecteddoc + "wrgrij")
@@ -124,7 +131,7 @@
           if (doc.data() !== undefined) {
             self.data = doc.data().data
             self.count = Object.keys(self.data.operators).length
-            $('#chart')[0].flowchart('setData', self.data)
+            $('#chart').flowchart('setData', self.data)
           }
         })
       }
@@ -138,12 +145,11 @@
   .container {
     width: 800px;
     height: 400px;
-    border: 1px solid red
   }
   
   .flowchart-container {
     width: 800px;
-    height: 400px;
+    height: 250px;
   }
   
   h1,
