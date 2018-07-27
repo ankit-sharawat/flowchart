@@ -7,23 +7,24 @@
     <!-- <b-card> -->
     <b-row slot="header">
       <b-col>
-        <b-form-select v-model="selecteddoc" text="Flowchart">
-          <option>Blank</option>
+        <b-form-select v-model="selecteddoc" text="Flowchart" @click="getcollections">
+          <option></option>
           <option v-for="(doc,index) in total_doc" :value="doc" v-bind:key="index">{{doc}}</option>
         </b-form-select>
         {{selecteddoc}}
       </b-col>
       <b-col>
-        <button v-on:click="getData" class="create_operator pull-right">
-                      Load Chart
-                    </button>
-        <button v-on:click="saveData">
-         save
-      </button>
+        <b-button variant="white" v-on:click="saveData">
+         Save As Recipe
+      </b-button>
+        <b-button variant="primary" v-on:click="getData" class="create_operator pull-right">
+                      Run
+                    </b-button>
+        
       </b-col>
       <b-col>
         <div id="select-components">
-          <select v-model="currentComponent" @change="show=true">
+          <select  v-model="currentComponent" @change="show=true">
           <option v-for="(comp,index) in components"
              v-bind:key="index"
              :value="comp"
@@ -36,12 +37,11 @@
             </div>
           </b-modal>
         </div>
-      </div>
       <div id="d1"></div>
       </b-col>
     </b-row>
     <!-- <add-operator @add-operator="createOperator" ></add-operator> -->
-    <div id="chart">
+       <div id="chart">
     </div>
     </b-card>
     <!-- <div v-for="(element,index) in elements" :is="scomponent" :key="index"></div> -->
@@ -55,6 +55,7 @@
     DATATBASE
   } from '../../config/firebase_con.js'
   import AddOperator from './AddOperator'
+  import Vue from 'vue'
   import Train from './Train'
   import Deploy from './Deploy'
   window.$ = window.jQuery = require('jquery')
@@ -75,14 +76,14 @@
         data: "",
         count:0,
         total_doc: [],
-        selecteddoc: "",
+        selecteddoc: "null",
         components: ["AddOperator", "Train", "Deploy"],
         currentComponent: ''
       }
     },
     mounted: function() {
-      this.getcollections()
       setTimeout(() => {
+        this.getcollections()
         var flowchart = $('#chart')
         flowchart.flowchart({
           data: this.data,
@@ -106,14 +107,20 @@
         this.show = false
       },
       saveData() {
-        console.log(this.selecteddoc + "wrgrij")
-        //  if(this.selecteddoc !=""){
-        //  var data = $('#chart').flowchart('getData')
-        //  db.collection('flowchart').doc(this.selecteddoc).set({
-        //   data: data
-        // })
-        //   console.log("wfr")
-        //  }
+        var data = $('#chart').flowchart('getData')
+        if(this.selecteddoc != "null"){
+          db.collection('flowchart').doc(this.selecteddoc).set({
+            data: data
+          })
+        }
+        else{
+          db.collection('flowchart').add({
+            data: data
+          }).then(function(docRef) {
+            alert("saved")
+          })
+
+        }
       },
       getcollections() {
         var self = this
@@ -124,6 +131,8 @@
   
           });
         });
+        console.log(this.$refs)
+         Vue.nextTick(() => $(".container").refresh())
       },
       getData(todo) {
         var self = this
@@ -141,7 +150,7 @@
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 
-<style scoped>
+<style>
   .container {
     width: 800px;
     height: 400px;
@@ -149,9 +158,12 @@
   
   .flowchart-container {
     width: 800px;
-    height: 250px;
+    height: 4000px;
   }
-  
+  #chart {
+    width: 800px;
+    height: 400px;
+  } 
   h1,
   h2 {
     font-weight: normal;
@@ -169,5 +181,14 @@
   
   a {
     color: #42b983;
+  }
+  /* .flowchart-operator-connector-small-arrow {
+    border:5px;
+    border-radius: 5px;
+  }
+  */
+  .flowchart-operator .flowchart-operator-title {
+    background: transparent !important;
+    border-bottom: 0px !important;
   }
 </style>

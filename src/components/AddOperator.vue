@@ -58,7 +58,7 @@ export default {
   }
 }
 </script>
-<style>
+<style  scoped>
 .flowchart-operator-outputs .flowchart-operator-connector-arrow {
     right: 0px;
 }
@@ -70,11 +70,32 @@ export default {
 .flowchart-operator .flowchart-operator-inputs-outputs {
     margin-top: 0px;
     margin-bottom: 0px;
+    border-radius:10px;
 }
 .flowchart-operator-connector-arrow {
   top:22px;
 }
-.flowchart-operator .flowchart-operator-title {
-  height:60px;
+.flowchart-operator {
+  border:0px;
 }
+.flowchart-operator .flowchart-operator-title {
+  padding: 15px;
+  color:white;
+  height:60px;
+  background: linear-gradient(to right, #6e2a8a , #c280d8);
+  border-radius: 8px;
+  border-bottom: 0px;
+}
+
+.flowchart-operator-inputs .flowchart-operator-connector-arrow {
+    left: -5px;
+}
+.flowchart-operator-outputs .flowchart-operator-connector-arrow {
+    right: -5px;
+}
+.flowchart-operator-connector-arrow {
+  border: 6px solid rgb(231, 198, 245);
+  border-radius: 6px;
+}
+
 </style>
