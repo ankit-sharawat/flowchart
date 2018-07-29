@@ -22,23 +22,14 @@
              :value="comp"
              ><h2>{{comp}} <b-badge>New</b-badge></h2>
              </option></b-form-select>
-          <b-modal ref="modal1"  v-model="show">
-            <add-operator @add-operator="createOperator" :name="currentComponent" @close-modal="close"></add-operator>
-            <!--<component v-bind:is="currentComponent" class="tab" @add-operator="createOperator"></component>
-            
-            --><div slot="modal-footer">
-            </div>
-          </b-modal>
-        </div>
-      <div id="d1"></div>
-      </b-col>
-    </b-row>
-    <!-- <add-operator @add-operator="createOperator" ></add-operator> -->
+          
+            <add-operator @add-operator="createOperator" :name="currentComponent" :show="show" @close="close()"></add-operator>
+       </div>
+       </b-col>
+       </b-row>
        <div id="chart">
-    </div>
+      </div>
     </b-card>
-    <!-- <div v-for="(element,index) in elements" :is="scomponent" :key="index"></div> -->
-    <!-- </b-card> -->
   </b-container>
 </template>
 
@@ -104,7 +95,8 @@
     },
     methods: {
       close() {
-        this.$refs.modal1.hide()
+        this.show = false
+        this.currentComponent = ""
       },
       clear() {
         location.reload()
@@ -255,7 +247,7 @@
 .Train {
   padding: 15px;
   color:white;
-  height:30px;
+  height:60px;
   background: linear-gradient(to right, #278ea0 , #88dfee);
   border-radius: 8px;
   border-bottom: 0px;
