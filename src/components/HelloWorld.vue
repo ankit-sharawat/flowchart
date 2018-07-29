@@ -1,39 +1,32 @@
 <template>
-  <b-container class="container">
-  <b-card title=""
-                header-tag="header"
-                footer-tag="footer">
-            
-    <!-- <b-card> -->
+  <b-container refs="container">
+  <b-card title="" header-tag="header" footer-tag="footer">
     <b-row slot="header">
       <b-col>
-        <b-form-select v-model="selecteddoc" text="Flowchart" @click="getcollections">
-          <option></option>
+        <b-form-select v-model="selecteddoc" text="Flowchart" >
+         <option :value="null" @click="clear()"></option>
           <option v-for="(doc,index) in total_doc" :value="doc" v-bind:key="index">{{doc}}</option>
         </b-form-select>
-        {{selecteddoc}}
       </b-col>
       <b-col>
-        <b-button variant="white" v-on:click="saveData">
-         Save As Recipe
-      </b-button>
-        <b-button variant="primary" v-on:click="getData" class="create_operator pull-right">
-                      Run
-                    </b-button>
-        
+        <b-button variant="white" v-on:click="saveData"> Save As Recipe </b-button>
+        <b-button variant="primary" v-on:click="getData" class="create_operator pull-right"> Run </b-button>
       </b-col>
+
       <b-col>
         <div id="select-components">
-          <select  v-model="currentComponent" @change="show=true">
+          <b-form-select  v-model="currentComponent" @change="show=true">
+          <option></option>
           <option v-for="(comp,index) in components"
              v-bind:key="index"
              :value="comp"
-             >{{ comp }}
-             </option></select> {{show}}
-           
-          <b-modal id="modal1" title="Bootstrap-Vue" v-model="show">
-            <component v-bind:is="currentComponent" class="tab" @add-operator="createOperator"></component>
-            <div slot="modal-footer">
+             ><h2>{{comp}} <b-badge>New</b-badge></h2>
+             </option></b-form-select>
+          <b-modal ref="modal1"  v-model="show">
+            <add-operator @add-operator="createOperator" :name="currentComponent" @close-modal="close"></add-operator>
+            <!--<component v-bind:is="currentComponent" class="tab" @add-operator="createOperator"></component>
+            
+            --><div slot="modal-footer">
             </div>
           </b-modal>
         </div>
@@ -74,20 +67,25 @@
       return {
         show: false,
         data: "",
+        refresh: false,
         count:0,
         total_doc: [],
         selecteddoc: "null",
-        components: ["AddOperator", "Train", "Deploy"],
+        components: ["DataTask", "Train", "Deploy"],
         currentComponent: ''
       }
     },
     mounted: function() {
+      this.getcollections()
       setTimeout(() => {
-        this.getcollections()
         var flowchart = $('#chart')
         flowchart.flowchart({
           data: this.data,
-          canUserEditLinks: true
+          distanceFromArrow: 2,
+          defaultLinkColor: '#c6c4c5',
+          multipleLinksOnOutput: true,
+          multipleLinksOnInput: true,
+          linkWidth:2
         })
       }, 500)
   
@@ -95,19 +93,35 @@
     computed: {
       currentTabComponent: function() {
         return this.currentComponent.toLowerCase()
-      }
+      },
+      reload: function() {
+        return this.selecteddoc
+      },
+      // getdocs: function() {
+      //   //this.getcollections()
+      //   return this.selecteddoc
+      // }
     },
     methods: {
+      close() {
+        this.$refs.modal1.hide()
+      },
+      clear() {
+        location.reload()
+      },
       createOperator(op_data) {
         this.count += 1
         var operatorI = this.count
         var flowchart = $('#chart');
         var operatorId = 'created_operator_' + operatorI;
         flowchart.flowchart('createOperator', operatorId, op_data);
-        this.show = false
+        this.currentComponent = ""
+        this.show = false    
       },
       saveData() {
         var data = $('#chart').flowchart('getData')
+        console.log(this.selecteddoc)
+        self = this
         if(this.selecteddoc != "null"){
           db.collection('flowchart').doc(this.selecteddoc).set({
             data: data
@@ -117,10 +131,13 @@
           db.collection('flowchart').add({
             data: data
           }).then(function(docRef) {
-            alert("saved")
+            self.total_doc.push(docRef.id)
+            alert(docRef.id)
+            alert("cdc")    
           })
 
         }
+          this.refresh = true
       },
       getcollections() {
         var self = this
@@ -131,8 +148,10 @@
   
           });
         });
-        console.log(this.$refs)
-         Vue.nextTick(() => $(".container").refresh())
+        // console.log(this.$ref
+        
+        //this.$refs.container.refresh()
+        //this.$refs.container.$forceUpdate()
       },
       getData(todo) {
         var self = this
@@ -182,13 +201,81 @@
   a {
     color: #42b983;
   }
-  /* .flowchart-operator-connector-small-arrow {
-    border:5px;
-    border-radius: 5px;
-  }
-  */
-  .flowchart-operator .flowchart-operator-title {
-    background: transparent !important;
-    border-bottom: 0px !important;
-  }
+  
+.flowchart-operator-outputs .flowchart-operator-connector-arrow {
+    right: 0px;
+}
+.flowchart-operator-connector {
+    position:unset;
+    padding-top: 0px;
+    padding-bottom: 0px;
+}
+.flowchart-operator .flowchart-operator-inputs-outputs {
+    margin-top: 0px;
+    margin-bottom: 0px;
+    border-radius:10px;
+}
+.flowchart-operator-connector-arrow {
+  top:22px;
+}
+.flowchart-operator {
+  border:0px;
+}
+  .Deploy{
+  color:white;
+  height:60px !important;
+  background: linear-gradient(to right, #6e2a8a , #c280d8);
+  border-radius: 8px;
+  border-bottom: 0px;
+}
+.Deploy  .flowchart-operator-connector-arrow {
+  border: 6px solid rgb(162, 23, 221);
+  border-radius: 6px;
+}
+.flowchart-operator .flowchart-operator-title{
+  background:transparent;
+  border-bottom:0px;
+}
+.Deploy .flowchart-operator-connector:hover .flowchart-operator-connector-arrow {
+    border-left: 6px solid rgb(162, 23, 221);
+}
+.flowchart-operator-inputs .flowchart-operator-connector-arrow {
+    left: -5px;
+}
+.flowchart-operator-outputs .flowchart-operator-connector-arrow {
+    right: -5px;
+}
+.Train .flowchart-operator-connector-arrow {
+  border: 6px solid rgb(161, 225, 236);
+  border-radius: 6px;
+}
+.flowchart-operator-connector-small-arrow {
+  border:0px;
+}
+.Train {
+  padding: 15px;
+  color:white;
+  height:30px;
+  background: linear-gradient(to right, #278ea0 , #88dfee);
+  border-radius: 8px;
+  border-bottom: 0px;
+}
+.Train .flowchart-operator-connector:hover .flowchart-operator-connector-arrow {
+    border-left: 6px solid rgb(161, 225, 236);
+}
+.DataTask .flowchart-operator-connector-arrow {
+  border: 6px solid rgb(252, 22, 103);
+  border-radius: 6px;
+}
+.DataTask {
+  padding: 15px;
+  color:white;
+  height:60px;
+  background: linear-gradient(to right, #f7482a ,#f72a71);
+  border-radius: 8px;
+  border-bottom: 0px;
+}
+.DataTask .flowchart-operator-connector:hover .flowchart-operator-connector-arrow {
+    border-left: 6px solid rgb(252, 22, 103);
+}
 </style>

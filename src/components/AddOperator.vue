@@ -1,24 +1,44 @@
 <template>
+<b-row>
+<b-col>
 <div class='ui basic content center aligned segment'>
       <div class='content'>
+      {{name}}
           <div class='field'>
             <label>Title</label>
-            <input v-model="title" type='text' ref='title' defaultValue="">
+            <input v-model="title" type='text' ref='title'>
           </div>
           <div class='ui two button attached buttons'>
-            <button class='ui basic blue button' v-on:click="sendForm()">
+            <button class='ui basic blue button' v-on:click="sendForm">
               Create
             </button>
-            <button class='ui basic red button' v-on:click="closeForm">
+            <button class='ui basic red button' @click="close">
               Cancel
             </button>
           </div>
         </div>
   </div>
+</b-col>
+<b-col>
+  <b-card title="Card Title"
+          img-src="https://picsum.photos/600/300/?image=25"
+          img-alt="Image"
+          img-top
+          tag="article"
+          style="max-width: 20rem;"
+          class="mb-2">
+    <p class="card-text">
+      Some quick example text to build on the card title and make up the bulk of the card's content.
+    </p>
+    <b-button href="#" variant="primary">Go somewhere</b-button>
+  </b-card>
+  </b-col>
+  </b-row>
 </template>
 
 <script>
 export default {
+  props: ["name"],
   data () {
     return {
       top: '',
@@ -27,11 +47,11 @@ export default {
     }
   },
   methods: {
-    openForm () {
-      this.isCreating = true
+    close () {
+      this.$emit('close-modal');
     },
-    closeForm () {
-      this.isCreating = false
+    clearForm () {
+      this.title = ""
     },
     sendForm () {
       if (this.title.length > 0) {
@@ -40,7 +60,7 @@ export default {
            left: 60,
            properties: {
              title: this.title,
-             class:"",
+             class: this.name,
              inputs: {
                input_1: {
                  label: '',
@@ -54,48 +74,13 @@ export default {
            }
         })
       }
+      this.clearForm();
     }
   }
 }
 </script>
 <style  scoped>
-.flowchart-operator-outputs .flowchart-operator-connector-arrow {
-    right: 0px;
+.modal-header {
+  border-bottom:0px
 }
-.flowchart-operator-connector {
-    position:unset;
-    padding-top: 0px;
-    padding-bottom: 0px;
-}
-.flowchart-operator .flowchart-operator-inputs-outputs {
-    margin-top: 0px;
-    margin-bottom: 0px;
-    border-radius:10px;
-}
-.flowchart-operator-connector-arrow {
-  top:22px;
-}
-.flowchart-operator {
-  border:0px;
-}
-.flowchart-operator .flowchart-operator-title {
-  padding: 15px;
-  color:white;
-  height:60px;
-  background: linear-gradient(to right, #6e2a8a , #c280d8);
-  border-radius: 8px;
-  border-bottom: 0px;
-}
-
-.flowchart-operator-inputs .flowchart-operator-connector-arrow {
-    left: -5px;
-}
-.flowchart-operator-outputs .flowchart-operator-connector-arrow {
-    right: -5px;
-}
-.flowchart-operator-connector-arrow {
-  border: 6px solid rgb(231, 198, 245);
-  border-radius: 6px;
-}
-
 </style>

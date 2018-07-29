@@ -58,11 +58,11 @@ export default {
   }
 }
 </script>
-<style>
+<style scoped>
 
  .deploy{
   color:white;
-  height:60px;
+  height:60px !important;
   background: linear-gradient(to right, #6e2a8a , #c280d8);
   border-radius: 8px;
   border-bottom: 0px;
