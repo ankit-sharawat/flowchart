@@ -1,6 +1,7 @@
 <template>
 <div class='ui basic content center aligned segment'>
       <div class='content'>
+      {{name}}
           <div class='field'>
             <label>Title</label>
             <input v-model="title" type='text' ref='title' defaultValue="">
@@ -19,6 +20,7 @@
 
 <script>
 export default {
+  props: ["name"],
   data () {
     return {
       top: '',
@@ -40,7 +42,7 @@ export default {
            left: 70,
            properties: {
              title: this.title,
-             class:"train",
+             class:this.name,
              inputs: {
                input_1: {
                  label: '',
@@ -58,7 +60,7 @@ export default {
   }
 }
 </script>
-<style>
+<style scoped>
 .flowchart-operator-outputs .flowchart-operator-connector-arrow {
     right: 0px;
 }
