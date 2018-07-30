@@ -20,9 +20,8 @@
           <option v-for="(comp,index) in components"
              v-bind:key="index"
              :value="comp"
-             ><h2>{{comp}} <b-badge>New</b-badge></h2>
+             ><img :src="getImage(comp)"></img><h2>{{comp}}</h2>
              </option></b-form-select>
-          
             <add-operator @add-operator="createOperator" :name="currentComponent" :show="show" @close="close()"></add-operator>
        </div>
        </b-col>
@@ -35,13 +34,9 @@
 
 <script>
   import 'jquery.flowchart/jquery.flowchart.css'
-  import {
-    DATATBASE
-  } from '../../config/firebase_con.js'
+  import {DATATBASE} from '../../config/firebase_con.js'
   import AddOperator from './AddOperator'
   import Vue from 'vue'
-  import Train from './Train'
-  import Deploy from './Deploy'
   window.$ = window.jQuery = require('jquery')
   require('jquery-ui-dist/jquery-ui')
   require('jquery.flowchart/jquery.flowchart.js')
@@ -50,9 +45,7 @@
   export default {
     name: 'HelloWorld',
     components: {
-      AddOperator,
-      Train,
-      Deploy
+      AddOperator
     },
     data() {
       return {
@@ -94,6 +87,9 @@
       // }
     },
     methods: {
+      getImage(cmp){
+       return "./assets/"+cmp+".png"
+      },
       close() {
         this.show = false
         this.currentComponent = ""
