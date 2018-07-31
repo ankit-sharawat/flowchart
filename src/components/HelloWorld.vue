@@ -1,39 +1,42 @@
 <template>
-  <b-container refs="container">
-  <b-card title="" header-tag="header" footer-tag="footer">
-    <b-row slot="header">
-      <b-col>
-        <b-form-select v-model="selecteddoc" text="Flowchart" >
-         <option :value="null" @click="clear()"></option>
+  <div class="container" refs="container">
+  <div class="card" title="" header-tag="header" footer-tag="footer">
+      <div class="card-header">
+      <div class="col-md-4">
+        <select  class="form-control" v-model="selecteddoc" text="Flowchart" @change="clear()">
+         <option :value="null"></option>
           <option v-for="(doc,index) in total_doc" :value="doc" v-bind:key="index">{{doc}}</option>
-        </b-form-select>
-      </b-col>
-      <b-col>
-        <b-button variant="white" v-on:click="saveData"> Save As Recipe </b-button>
-        <b-button variant="primary" v-on:click="getData" class="create_operator pull-right"> Run </b-button>
-      </b-col>
-
-      <b-col>
+        </select>
+      </div>
+      <div class="col-md-8">
+        <div class="buttonTopRight">
+        <b-button variant="white" v-on:click="saveData" class="savebtn"> Save As Recipe </b-button>
         <div id="select-components">
-          <b-form-select  v-model="currentComponent" @change="show=true">
-          <option></option>
-          <option v-for="(comp,index) in components"
-             v-bind:key="index"
-             :value="comp"
-             ><img :src="getImage(comp)"></img><h2>{{comp}}</h2>
-             </option></b-form-select>
+          <div id="flows-dropdown" class="dropdown fright" style="display:inline-block; margin-right:14px;">
+                <button  class="btn btn-default dropdown-toggle flows-dropdown-btn transparent-button" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" style="background:#fff; margin-left:7px; border:solid 1px #c4c4c4; border-radius:3px !important;">
+                   Add 
+                </button>
+                <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                    <div class="dropdown-item" v-for="(comp, index) in components" @click="setcomponent(comp)" :key="index" style="cursor: pointer;">
+                       <img :src="getImage(comp)" class="icon"> {{comp}}</div>
+                </div>
+            </div>
             <add-operator @add-operator="createOperator" :name="currentComponent" :show="show" @close="close()"></add-operator>
        </div>
-       </b-col>
-       </b-row>
+        <b-button variant="primary" v-on:click="getData" class="create_operator pull-right"> Run </b-button>
+        </div>
+       </div>
+  </div>
        <div id="chart">
       </div>
-    </b-card>
-  </b-container>
+    </div>
+  </div>
 </template>
 
 <script>
   import 'jquery.flowchart/jquery.flowchart.css'
+  import 'jquery-ui-dist/jquery-ui.css'
+  import 'jquery-ui-dist/jquery-ui.js'
   import {DATATBASE} from '../../config/firebase_con.js'
   import AddOperator from './AddOperator'
   import Vue from 'vue'
@@ -51,16 +54,17 @@
       return {
         show: false,
         data: "",
-        refresh: false,
         count:0,
         total_doc: [],
         selecteddoc: "null",
-        components: ["DataTask", "Train", "Deploy"],
+        components: ["DataTask","Train","Deploy"],
+
         currentComponent: ''
       }
     },
     mounted: function() {
       this.getcollections()
+      var self = this
       setTimeout(() => {
         var flowchart = $('#chart')
         flowchart.flowchart({
@@ -71,8 +75,16 @@
           multipleLinksOnInput: true,
           linkWidth:2
         })
+       
       }, 500)
-  
+       
+       $("#selectcomponent").selectmenu({ 
+         change: function( event, ui ) {
+           self.currentComponent = ui.item.value
+           self.show = true
+           
+         }
+       });
     },
     computed: {
       currentTabComponent: function() {
@@ -81,21 +93,23 @@
       reload: function() {
         return this.selecteddoc
       },
-      // getdocs: function() {
-      //   //this.getcollections()
-      //   return this.selecteddoc
-      // }
     },
     methods: {
+      setcomponent(cmp){
+        this.currentComponent = cmp
+        this.show= true
+      },
       getImage(cmp){
-       return "./assets/"+cmp+".png"
+       var images = require.context('../assets/', false, /\.png$/)
+       return images('./' + cmp + ".png")
       },
       close() {
         this.show = false
         this.currentComponent = ""
       },
       clear() {
-        location.reload()
+        if(this.selecteddoc==null)
+          location.reload()
       },
       createOperator(op_data) {
         this.count += 1
@@ -108,20 +122,21 @@
       },
       saveData() {
         var data = $('#chart').flowchart('getData')
-        console.log(this.selecteddoc)
+        console.log(this.selecteddoc==null)
         self = this
-        if(this.selecteddoc != "null"){
+        if(this.selecteddoc != "null" && this.selecteddoc != null){
           db.collection('flowchart').doc(this.selecteddoc).set({
             data: data
           })
         }
         else{
+          alert(123)
           db.collection('flowchart').add({
             data: data
           }).then(function(docRef) {
             self.total_doc.push(docRef.id)
-            alert(docRef.id)
-            alert("cdc")    
+            alert("saved:"+ docRef.id)
+            self.selecteddoc = docRef.id
           })
 
         }
@@ -132,14 +147,8 @@
         db.collection("flowchart").get().then(function(querySnapshot) {
           querySnapshot.forEach(function(doc) {
             self.total_doc.push(doc.id)
-            // doc.data() is never undefined for query doc snapshots
-  
           });
         });
-        // console.log(this.$ref
-        
-        //this.$refs.container.refresh()
-        //this.$refs.container.$forceUpdate()
       },
       getData(todo) {
         var self = this
@@ -154,8 +163,6 @@
     }
   }
 </script>
-
-<!-- Add "scoped" attribute to limit CSS to this component only -->
 
 <style>
   .container {
@@ -174,16 +181,6 @@
   h1,
   h2 {
     font-weight: normal;
-  }
-  
-  ul {
-    list-style-type: none;
-    padding: 0;
-  }
-  
-  li {
-    display: inline-block;
-    margin: 0 10px;
   }
   
   a {
@@ -265,5 +262,28 @@
 }
 .DataTask .flowchart-operator-connector:hover .flowchart-operator-connector-arrow {
     border-left: 6px solid rgb(252, 22, 103);
+}
+.icon {
+  width:28px;
+}
+.buttonTopRight {
+  float:right;
+}
+#select-components {
+ display:  inline-block;
+}
+.savebtn {
+  background: transparent !important;
+  border: 0px;
+}
+.savebtn:focus, .savebtn:hover {
+  background: transparent !important;
+  border: 0px;
+  outline:0px !important;
+  box-shadow:none;
+}
+.card-header {
+  display:inherit;
+  text-align: left;
 }
 </style>
