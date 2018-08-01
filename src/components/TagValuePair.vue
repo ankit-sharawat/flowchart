@@ -17,19 +17,19 @@
 
 <script>
 export default {
-  props: ["name","count"],
+  props: ['name', 'count'],
   data () {
     return {
       top: '',
       value: '',
-      key: '',
+      key: ''
     }
   },
   methods: {
-    addmore (){
+    addmore () {
       this.$emit('add')
     },
-    remove (){
+    remove () {
       this.$emit('remove')
     }
   }
