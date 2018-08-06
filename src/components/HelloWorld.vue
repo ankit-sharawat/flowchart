@@ -144,9 +144,10 @@ export default {
         }).then(function (docRef) {
           self.total_doc.push(docRef.id)
           self.selecteddoc = docRef.id
+          alert(self.documentname(self.selecteddoc) + ' saved')
         })
       }
-      alert(this.documentname(this.selecteddoc))
+      
     },
     getcollections () {
       var self = this
